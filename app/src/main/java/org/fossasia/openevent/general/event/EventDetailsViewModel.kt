@@ -6,15 +6,31 @@ import android.arch.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import org.fossasia.openevent.general.auth.DiscountCode
+import org.fossasia.openevent.general.discount.DiscountService
 import timber.log.Timber
 
-class EventDetailsViewModel(private val eventService: EventService) : ViewModel() {
+class EventDetailsViewModel(private val eventService: EventService, private val discountService: DiscountService) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
 
     val progress = MutableLiveData<Boolean>()
     val event = MutableLiveData<Event>()
+    val discountCode = MutableLiveData<DiscountCode>()
     val error = MutableLiveData<String>()
+
+    fun loadDiscountCode(id : Long) {
+        val event = EventId(id)
+        compositeDisposable.add(discountService.getDiscountCode(event)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    discountCode.value = it
+                },{
+                    error.value = "Error Loading DiscountCode..."
+                    Timber.e(it, "Error loading discount code %d",id)
+                }))
+    }
 
     fun loadEvent(id : Long) {
         if (id.equals(-1)) {
@@ -30,6 +46,7 @@ class EventDetailsViewModel(private val eventService: EventService) : ViewModel(
                     progress.value = false
                 }).subscribe({
                     event.value = it
+                    loadDiscountCode(id)
                 }, {
                     Timber.e(it, "Error fetching event %d",id)
                     error.value = "Error fetching event"

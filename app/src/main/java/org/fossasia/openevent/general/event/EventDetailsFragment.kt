@@ -10,9 +10,11 @@ import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.content_event.*
 import kotlinx.android.synthetic.main.content_event.view.*
 import org.fossasia.openevent.general.MainActivity
 import org.fossasia.openevent.general.R
+import org.fossasia.openevent.general.auth.DiscountCode
 import org.fossasia.openevent.general.ticket.TicketsFragment
 import org.fossasia.openevent.general.utils.nullToEmpty
 import org.koin.android.architecture.ext.viewModel
@@ -49,6 +51,12 @@ class EventDetailsFragment : Fragment() {
             Timber.d("Fetched events of id %d", eventId)
         })
 
+        eventViewModel.discountCode.observe(this, Observer {
+            it?.let {
+                loadDiscountCode(it)
+            }
+        })
+
         eventViewModel.error.observe(this, Observer {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         })
@@ -56,6 +64,11 @@ class EventDetailsFragment : Fragment() {
         eventViewModel.loadEvent(eventId)
 
         return rootView
+    }
+
+    private fun loadDiscountCode(discountCode: DiscountCode){
+        setTextField(discount_code_text_view,discountCode.code)
+        setTextField(discount_url,discountCode.discountUrl)
     }
 
     private fun loadEvent(event: Event) {
