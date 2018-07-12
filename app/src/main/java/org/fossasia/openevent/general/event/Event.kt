@@ -10,6 +10,7 @@ import com.github.jasminb.jsonapi.annotations.Id
 import com.github.jasminb.jsonapi.annotations.Relationship
 import com.github.jasminb.jsonapi.annotations.Type
 import org.fossasia.openevent.general.event.topic.EventTopic
+import org.fossasia.openevent.general.organizer.Organizer
 
 @Type("event")
 @JsonNaming(PropertyNamingStrategy.KebabCaseStrategy::class)
@@ -68,5 +69,9 @@ data class Event(
         var favorite: Boolean = false,
         @ColumnInfo(index = true)
         @Relationship("event-topic")
-        var eventTopic: EventTopic? = null
+        var eventTopic: EventTopic? = null,
+        @ColumnInfo(index = true)
+        @Relationship("organizers")
+        var organizers: List<Organizer>? = null
+
 )
